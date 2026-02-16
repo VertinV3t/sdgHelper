@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react'
 import '../App.css'
-import { BrowserRouter, Routes, Route, Link, useNavigate} from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './Header.tsx'
 import Players from './Players.tsx'
 import Home from './Home.tsx';
 
 import { db } from '../firebaseconfig.tsx'
-import { getDocs, collection, addDoc, onSnapshot} from 'firebase/firestore';
+import { collection, addDoc, onSnapshot} from 'firebase/firestore';
 import { getAuth, signInAnonymously } from 'firebase/auth';
+
+type PlayerData = {
+  id: string
+  name: string
+}
 
 const auth = getAuth()
 signInAnonymously(auth)
@@ -40,19 +45,19 @@ function App() {
     })
   }
 
-  const [data, setData] = useState([])
+  const [data, setData] = useState<PlayerData[]>([])
   useEffect(() => {
     const auth = getAuth()
     const unsubAuth = auth.onAuthStateChanged(user => {
       if (!user) return
 
-      const uid = user.uid
+      // const uid = user.uid
       const playersRef = collection(db, "global")
 
       const unsubFirestore = onSnapshot(playersRef, snapshot => {
         const usersData = snapshot.docs.map(doc => ({
           id: doc.id,
-          ...doc.data()
+          name: doc.data().name,
         }))
         setData(usersData)
       })

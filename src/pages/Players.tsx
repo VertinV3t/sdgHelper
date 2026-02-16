@@ -1,13 +1,23 @@
 import { useEffect, useState } from 'react'
 import { getAuth } from 'firebase/auth'
-import { getDocs, collection } from 'firebase/firestore'
+import { collection } from 'firebase/firestore'
 import { db } from '../firebaseconfig'
 import '../App.css'
 import { onSnapshot } from 'firebase/firestore'
 
+type PlayerData = {
+  id: string
+  name: string
+}
 
-function Players({data} : {names : string[], data : {name : string}}) {
-    const [personalData, setPData] = useState([])
+type PlayerDetail = {
+    id: string
+    name: string
+    mainRole : string
+}
+
+function Players({ data }: { data: PlayerData[] }) {
+    const [personalData, setPData] = useState<PlayerDetail[]>([])
     useEffect(() => {
     const auth = getAuth()
     const unsubAuth = auth.onAuthStateChanged(user => {
@@ -18,8 +28,9 @@ function Players({data} : {names : string[], data : {name : string}}) {
 
       const unsubFirestore = onSnapshot(playersRef, snapshot => {
         const usersData = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
+            id: doc.id,
+            name: doc.data().name,
+            mainRole: doc.data().mainRole
         }))
         setPData(usersData)
         console.log(personalData)
@@ -32,7 +43,7 @@ function Players({data} : {names : string[], data : {name : string}}) {
     return (
         <div className='w-screen flex justify-center items-center p-20'>
             <div className='grid grid-cols-3 gap-20 justify-center items-center'>
-                {data.map((data, i) => (
+                {data.map((data : PlayerData, i : number) => (
                     <div key={i} className='flex justify-center items-center'>
                         <div className='flex flex-col gap-3'>
                             <div className='text-black font-bold'>
